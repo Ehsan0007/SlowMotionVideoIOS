@@ -1,0 +1,39 @@
+//
+//  SlowMotionVideoRecording-Prefix.pch
+//  SlowMotionVideoRecordingTestProject
+//
+//  Created by Raza on 10/12/20.
+//
+
+#ifndef SlowMotionVideoRecording_Prefix_pch
+#define SlowMotionVideoRecording_Prefix_pch
+
+#import <Availability.h>
+
+#ifndef __IPHONE_5_0
+#warning "This project uses features only available in iOS SDK 5.0 and later."
+#endif
+
+#ifdef __OBJC__
+    #import <UIKit/UIKit.h>
+    #import <Foundation/Foundation.h>
+#endif
+
+#ifdef DEBUG
+#  define LOG(...) NSLog(__VA_ARGS__)
+#  define LOG_CURRENT_METHOD NSLog(@"%@/%@", NSStringFromClass([self class]), NSStringFromSelector(_cmd))
+#else
+#  define LOG(...) ;
+#  define LOG_CURRENT_METHOD ;
+#endif
+
+#ifdef DEBUG
+# define NSLog(...) NSLog(__VA_ARGS__)
+#else
+# define NSLog(...) {}
+#endif
+
+#define L(s) NSLocalizedString(s, nil)
+#define Defaults [NSUserDefaults standardUserDefaults]
+
+#endif /* SlowMotionVideoRecording_Prefix_pch */
