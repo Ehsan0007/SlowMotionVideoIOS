@@ -8,6 +8,7 @@
 
 #import "PreviewViewController.h"
 #import <AVKit/AVKit.h>
+#import <Photos/Photos.h>
 
 @interface PreviewViewController ()
 
@@ -42,14 +43,55 @@
 
 -(void)setupView {
 
-  self.playerItem = [[AVPlayerItem alloc] initWithURL:self.recordingURL];
-  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemDidFinishPlaying:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
-  self.player = [[AVPlayer alloc] initWithPlayerItem:self.playerItem];
-  AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
-  playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-  playerLayer.frame = self.previewView.bounds;
-  [self.previewView.layer addSublayer:playerLayer];
-  [self.player pause];
+//  self.playerItem = [[AVPlayerItem alloc] initWithURL:self.recordingURL];
+//  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemDidFinishPlaying:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
+//  self.player = [[AVPlayer alloc] initWithPlayerItem:self.playerItem];
+//  AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+//  playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+//  playerLayer.frame = self.previewView.bounds;
+//  [self.previewView.layer addSublayer:playerLayer];
+//  [self.player play];
+//  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+//    [self.player pause];
+//  });
+  
+  //Output URL
+  NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+  NSString *documentsDirectory = paths.firstObject;
+  NSString *myPathDocs =  [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"mergeSlowMoVideo-%d.mov",arc4random() % 1000]];
+  NSURL *url = [NSURL fileURLWithPath:myPathDocs];
+  
+  
+    AVAsset *asset = [AVAsset assetWithURL:self.recordingURL];
+    //Begin slow mo video export
+    AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality];
+    exporter.outputURL = url;
+    exporter.outputFileType = AVFileTypeQuickTimeMovie;
+    exporter.shouldOptimizeForNetworkUse = YES;
+  
+    [exporter exportAsynchronouslyWithCompletionHandler:^{
+      dispatch_async(dispatch_get_main_queue(), ^{
+        if (exporter.status == AVAssetExportSessionStatusCompleted) {
+          NSURL *URL = exporter.outputURL;
+          self.recordingURL = URL;
+          NSLog(@"%@", URL.absoluteString);
+  //        NSData *videoData = [NSData dataWithContentsOfURL:URL];
+            AVPlayerItem *playerItem = [[AVPlayerItem alloc] initWithURL:URL];
+            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemDidFinishPlaying:) name:AVPlayerItemDidPlayToEndTimeNotification object:playerItem];
+            self.player = [[AVPlayer alloc] initWithPlayerItem:playerItem];
+            AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+            playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+            playerLayer.frame = self.previewView.bounds;
+
+            [self.previewView.layer addSublayer:playerLayer];
+          [self.player play];
+          dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            [self.player pause];
+          });
+        }
+      });
+    }];
+  
 }
 
 -(float)getFrameRateFromAVPlayer
@@ -126,6 +168,55 @@
 //      }
 //    });
 //  }];
+
+
+//PHVideoRequestOptions *options = [PHVideoRequestOptions new];
+//       options.networkAccessAllowed = YES;
+//       [[PHImageManager defaultManager] requestAVAssetForVideo:asset options:options resultHandler:^(AVAsset *asset, AVAudioMix *audioMix, NSDictionary *info) {
+//           if(([asset isKindOfClass:[AVComposition class]] && ((AVComposition *)asset).tracks.count == 2)){
+//               //Added by UD for slow motion videos. See Here: https://overflow.buffer.com/2016/02/29/slow-motion-video-ios/
+//
+//               //Output URL
+//               NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+//               NSString *documentsDirectory = paths.firstObject;
+//               NSString *myPathDocs =  [documentsDirectory stringByAppendingPathComponent:[NSString stringWithFormat:@"mergeSlowMoVideo-%d.mov",arc4random() % 1000]];
+//               NSURL *url = [NSURL fileURLWithPath:myPathDocs];
+//
+//               //Begin slow mo video export
+//               AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality];
+//               exporter.outputURL = url;
+//               exporter.outputFileType = AVFileTypeQuickTimeMovie;
+//               exporter.shouldOptimizeForNetworkUse = YES;
+//
+//               [exporter exportAsynchronouslyWithCompletionHandler:^{
+//                   dispatch_async(dispatch_get_main_queue(), ^{
+//                       if (exporter.status == AVAssetExportSessionStatusCompleted) {
+//                           NSURL *URL = exporter.outputURL;
+//                           self.filePath=URL.absoluteString;
+//
+//
+//                          NSURLsession *uploadTask=[manager uploadTaskWithRequest:request
+//                                          fromFile:[NSURL URLWithString:self.filePath]
+//                                          progress:nil
+//                                 completionHandler:nil];
+//
+//
+//
+//
+//                        //Use above method or use the below one.
+//
+//
+//                           // NSData *videoData = [NSData dataWithContentsOfURL:URL];
+//                           //
+//                           //// Upload
+//                           //[self uploadSelectedVideo:video data:videoData];
+//                       }
+//                   });
+//               }];
+//
+//
+//           }
+//       }];
 
 
 @end

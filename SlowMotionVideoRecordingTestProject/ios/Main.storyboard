@@ -160,7 +160,7 @@
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5IL-mZ-LyN">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="862"/>
-                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Gya-G8-knq">
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="89.5"/>
@@ -192,7 +192,7 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.29999999999999999" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" systemColor="opaqueSeparatorColor"/>
                                 <constraints>
                                     <constraint firstItem="jgy-Gu-wUQ" firstAttribute="width" secondItem="jgy-Gu-wUQ" secondAttribute="height" multiplier="1:1" id="3Z7-cW-6pR"/>
                                     <constraint firstItem="T4R-TR-1wa" firstAttribute="leading" secondItem="Gya-G8-knq" secondAttribute="leading" constant="30" id="5f8-kH-0Cs"/>
@@ -224,14 +224,14 @@
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="0.29999999999999999" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="backgroundColor" systemColor="opaqueSeparatorColor"/>
                                 <constraints>
                                     <constraint firstItem="hfj-fS-gku" firstAttribute="top" secondItem="98d-NT-Feq" secondAttribute="top" constant="8" id="4js-dH-9jp"/>
                                     <constraint firstItem="hfj-fS-gku" firstAttribute="centerX" secondItem="98d-NT-Feq" secondAttribute="centerX" id="vTQ-gV-kRF"/>
                                 </constraints>
                             </view>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <color key="backgroundColor" white="0.33333333333333331" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstAttribute="trailing" secondItem="Gya-G8-knq" secondAttribute="trailing" id="1kz-Y1-YQm"/>
                             <constraint firstItem="Gya-G8-knq" firstAttribute="height" secondItem="fIh-Ii-UBX" secondAttribute="height" multiplier="0.1" id="2e9-hR-BK2"/>
@@ -303,6 +303,9 @@
         <image name="tick" width="64" height="64"/>
         <systemColor name="lightTextColor">
             <color white="1" alpha="0.59999999999999998" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+        <systemColor name="opaqueSeparatorColor">
+            <color red="0.77647058823529413" green="0.77647058823529413" blue="0.78431372549019607" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
