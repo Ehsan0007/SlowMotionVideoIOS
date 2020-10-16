@@ -9,6 +9,8 @@
 #import "PreviewViewController.h"
 #import <AVKit/AVKit.h>
 #import <Photos/Photos.h>
+#import <AVFoundation/AVFoundation.h>
+#import <AssetsLibrary/AssetsLibrary.h>
 
 @interface PreviewViewController ()
 
@@ -42,18 +44,18 @@
 // MARK: - SETUP UI
 
 -(void)setupView {
-
-//  self.playerItem = [[AVPlayerItem alloc] initWithURL:self.recordingURL];
-//  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemDidFinishPlaying:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
-//  self.player = [[AVPlayer alloc] initWithPlayerItem:self.playerItem];
-//  AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
-//  playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-//  playerLayer.frame = self.previewView.bounds;
-//  [self.previewView.layer addSublayer:playerLayer];
-//  [self.player play];
-//  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-//    [self.player pause];
-//  });
+  
+  //  self.playerItem = [[AVPlayerItem alloc] initWithURL:self.recordingURL];
+  //  [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemDidFinishPlaying:) name:AVPlayerItemDidPlayToEndTimeNotification object:self.playerItem];
+  //  self.player = [[AVPlayer alloc] initWithPlayerItem:self.playerItem];
+  //  AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+  //  playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+  //  playerLayer.frame = self.previewView.bounds;
+  //  [self.previewView.layer addSublayer:playerLayer];
+  //  [self.player play];
+  //  dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+  //    [self.player pause];
+  //  });
   
   //Output URL
   NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
@@ -62,35 +64,36 @@
   NSURL *url = [NSURL fileURLWithPath:myPathDocs];
   
   
-    AVAsset *asset = [AVAsset assetWithURL:self.recordingURL];
-    //Begin slow mo video export
-    AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality];
-    exporter.outputURL = url;
-    exporter.outputFileType = AVFileTypeQuickTimeMovie;
-    exporter.shouldOptimizeForNetworkUse = YES;
+  AVAsset *asset = [AVAsset assetWithURL:self.recordingURL];
+  //Begin slow mo video export
+  AVAssetExportSession *exporter = [[AVAssetExportSession alloc] initWithAsset:asset presetName:AVAssetExportPresetHighestQuality];
+  exporter.outputURL = url;
+  exporter.outputFileType = AVFileTypeQuickTimeMovie;
   
-    [exporter exportAsynchronouslyWithCompletionHandler:^{
-      dispatch_async(dispatch_get_main_queue(), ^{
-        if (exporter.status == AVAssetExportSessionStatusCompleted) {
-          NSURL *URL = exporter.outputURL;
-          self.recordingURL = URL;
-          NSLog(@"%@", URL.absoluteString);
-  //        NSData *videoData = [NSData dataWithContentsOfURL:URL];
-            AVPlayerItem *playerItem = [[AVPlayerItem alloc] initWithURL:URL];
-            [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemDidFinishPlaying:) name:AVPlayerItemDidPlayToEndTimeNotification object:playerItem];
-            self.player = [[AVPlayer alloc] initWithPlayerItem:playerItem];
-            AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
-            playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-            playerLayer.frame = self.previewView.bounds;
-
-            [self.previewView.layer addSublayer:playerLayer];
-          [self.player play];
-          dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self.player pause];
-          });
-        }
-      });
-    }];
+  exporter.shouldOptimizeForNetworkUse = YES;
+  
+  [exporter exportAsynchronouslyWithCompletionHandler:^{
+    dispatch_async(dispatch_get_main_queue(), ^{
+      if (exporter.status == AVAssetExportSessionStatusCompleted) {
+        NSURL *URL = exporter.outputURL;
+        self.recordingURL = URL;
+        NSLog(@"%@", URL.absoluteString);
+        //        NSData *videoData = [NSData dataWithContentsOfURL:URL];
+        AVPlayerItem *playerItem = [[AVPlayerItem alloc] initWithURL:URL];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(itemDidFinishPlaying:) name:AVPlayerItemDidPlayToEndTimeNotification object:playerItem];
+        self.player = [[AVPlayer alloc] initWithPlayerItem:playerItem];
+        AVPlayerLayer *playerLayer = [AVPlayerLayer playerLayerWithPlayer:self.player];
+        playerLayer.videoGravity = AVLayerVideoGravityResizeAspectFill;
+        playerLayer.frame = self.previewView.bounds;
+        
+        [self.previewView.layer addSublayer:playerLayer];
+        [self.player play];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+          [self.player pause];
+        });
+      }
+    });
+  }];
   
 }
 
@@ -101,7 +104,7 @@
     AVAssetTrack * videoATrack = [[self.player.currentItem.asset tracksWithMediaType:AVMediaTypeVideo] lastObject];
     if(videoATrack)
     {
-        fps = videoATrack.nominalFrameRate;
+      fps = videoATrack.nominalFrameRate;
     }
   }
   return fps;
@@ -137,12 +140,145 @@
 // MARK: - HELPER METHODS
 
 -(void)itemDidFinishPlaying:(NSNotification *) notification {
-    // Will be called when AVPlayer finishes playing playerItem
+  // Will be called when AVPlayer finishes playing playerItem
   NSLog(@"AVPlayer finishes playing playerItem");
   self.isPlaying = NO;
   [self.buttonPlayPause setImage:[UIImage imageNamed:@"play"] forState:UIControlStateNormal];
 }
 
+
+- (void)SlowMotion:(NSURL *)URl
+{
+  AVURLAsset* videoAsset = [AVURLAsset URLAssetWithURL:URl options:nil]; //self.inputAsset;
+  
+  AVAsset *currentAsset = [AVAsset assetWithURL:URl];
+  AVAssetTrack *vdoTrack = [[currentAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0];
+  //create mutable composition
+  AVMutableComposition *mixComposition = [AVMutableComposition composition];
+  
+  AVMutableCompositionTrack *compositionVideoTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeVideo preferredTrackID:kCMPersistentTrackID_Invalid];
+  AVMutableCompositionTrack *compositionAudioTrack = [mixComposition addMutableTrackWithMediaType:AVMediaTypeAudio preferredTrackID:kCMPersistentTrackID_Invalid];
+  
+  NSError *videoInsertError = nil;
+  BOOL videoInsertResult = [compositionVideoTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset.duration)
+                                                          ofTrack:[[videoAsset tracksWithMediaType:AVMediaTypeVideo] objectAtIndex:0]
+                                                           atTime:kCMTimeZero
+                                                            error:&videoInsertError];
+  if (!videoInsertResult || nil != videoInsertError) {
+    //handle error
+    return;
+  }
+  
+  NSError *audioInsertError =nil;
+  BOOL audioInsertResult =[compositionAudioTrack insertTimeRange:CMTimeRangeMake(kCMTimeZero, videoAsset.duration)
+                                                         ofTrack:[[currentAsset tracksWithMediaType:AVMediaTypeAudio] objectAtIndex:0]
+                                                          atTime:kCMTimeZero
+                                                           error:&audioInsertError];
+  
+  if (!audioInsertResult || nil != audioInsertError) {
+    //handle error
+    return;
+  }
+  
+  CMTime duration =kCMTimeZero;
+  duration=CMTimeAdd(duration, currentAsset.duration);
+  //slow down whole video by 2.0
+  double videoScaleFactor = 2.0;
+  CMTime videoDuration = videoAsset.duration;
+  
+  [compositionVideoTrack scaleTimeRange:CMTimeRangeMake(kCMTimeZero, videoDuration)
+                             toDuration:CMTimeMake(videoDuration.value*videoScaleFactor, videoDuration.timescale)];
+  [compositionAudioTrack scaleTimeRange:CMTimeRangeMake(kCMTimeZero, videoDuration)
+                             toDuration:CMTimeMake(videoDuration.value*videoScaleFactor, videoDuration.timescale)];
+  [compositionVideoTrack setPreferredTransform:vdoTrack.preferredTransform];
+  
+  NSArray *dirPaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+  NSString *docsDir = [dirPaths objectAtIndex:0];
+  NSString *outputFilePath = [docsDir stringByAppendingPathComponent:[NSString stringWithFormat:@"slowMotion.mov"]];
+  if ([[NSFileManager defaultManager] fileExistsAtPath:outputFilePath])
+    [[NSFileManager defaultManager] removeItemAtPath:outputFilePath error:nil];
+  NSURL *_filePath = [NSURL fileURLWithPath:outputFilePath];
+  
+  //export
+  AVAssetExportSession* assetExport = [[AVAssetExportSession alloc] initWithAsset:mixComposition
+                                                                       presetName:AVAssetExportPresetLowQuality];
+  assetExport.outputURL=_filePath;
+  assetExport.outputFileType =           AVFileTypeQuickTimeMovie;
+  assetExport.shouldOptimizeForNetworkUse = YES;
+  [assetExport exportAsynchronouslyWithCompletionHandler:^
+   {
+    
+    switch ([assetExport status]) {
+      case AVAssetExportSessionStatusFailed:
+      {
+        NSLog(@"Export session faiied with error: %@", [assetExport error]);
+        dispatch_async(dispatch_get_main_queue(), ^{
+          // completion(nil);
+        });
+      }
+        break;
+      case AVAssetExportSessionStatusCompleted:
+      {
+        
+        NSLog(@"Successful");
+        NSURL *outputURL = assetExport.outputURL;
+        
+        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+        if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:outputURL]) {
+          
+          [self writeExportedVideoToAssetsLibrary:outputURL];
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+          //                                            completion(_filePath);
+        });
+        
+      }
+        break;
+      default:
+        
+        break;
+    }
+    
+    
+  }];
+  
+  
+}
+
+- (void)writeExportedVideoToAssetsLibrary :(NSURL *)url {
+  NSURL *exportURL = url;
+  ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+  if ([library videoAtPathIsCompatibleWithSavedPhotosAlbum:exportURL]) {
+    [library writeVideoAtPathToSavedPhotosAlbum:exportURL completionBlock:^(NSURL *assetURL, NSError *error){
+      dispatch_async(dispatch_get_main_queue(), ^{
+        if (error) {
+          UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:[error localizedDescription]
+                                                              message:[error localizedRecoverySuggestion]
+                                                             delegate:nil
+                                                    cancelButtonTitle:@"OK"
+                                                    otherButtonTitles:nil];
+          [alertView show];
+        }
+        if(!error)
+        {
+          // [activityView setHidden:YES];
+          UIAlertView *alertView = [[UIAlertView alloc] initWithTitle:@"Sucess"
+                                                              message:@"video added to gallery successfully"
+                                                             delegate:nil
+                                                    cancelButtonTitle:@"OK"
+                                                    otherButtonTitles:nil];
+          [alertView show];
+        }
+#if !TARGET_IPHONE_SIMULATOR
+        [[NSFileManager defaultManager] removeItemAtURL:exportURL error:nil];
+#endif
+      });
+    }];
+  } else {
+    NSLog(@"Video could not be exported to assets library.");
+  }
+  
+}
 
 //  AVAsset *asset = [AVAsset assetWithURL:self.recordingURL];
 //
